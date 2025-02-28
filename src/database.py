@@ -10,7 +10,6 @@ from dotenv import load_dotenv
 load_dotenv()
 
 DATABASE_URL = os.environ.get("DATABASE_URL")
-print("Database URL:", DATABASE_URL)  
 
 engine = create_async_engine(DATABASE_URL, echo=True)
 
@@ -27,5 +26,3 @@ async def get_session():
 
     async with async_session() as session:
         yield session
-
-    #SessionDep = Annotated[Session, Depends(get_session)]
