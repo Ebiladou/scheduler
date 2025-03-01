@@ -6,6 +6,11 @@ class UserBase(BaseModel):
     email: EmailStr
     phone: int
 
+class UserUpdate(UserBase):
+    name: str | None = None
+    email: EmailStr | None = None
+    phone: int | None = None
+
 class UserCreate(UserBase):
     password: str  
 
