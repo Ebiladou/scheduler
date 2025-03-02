@@ -2,7 +2,6 @@ from typing import Optional
 from sqlmodel import Field, SQLModel
 from sqlalchemy import Column, String
 from datetime import datetime
-import uuid 
 
 class Users(SQLModel, table=True):
     id: int = Field(default=None, primary_key=True)
