@@ -18,7 +18,7 @@ class UserResponse(UserBase):
     id: int  
 
     class Config:
-        orm_mode = True 
+        from_attributes = True 
 
 class EventBase(BaseModel):
     title: str
@@ -40,7 +40,7 @@ class EventResponse(EventBase):
     user_id: int
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 class Login_user (BaseModel):
     email : str

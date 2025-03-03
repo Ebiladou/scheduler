@@ -1,9 +1,10 @@
-from fastapi import status, HTTPException, APIRouter
+from fastapi import status, HTTPException, APIRouter, Depends
 from database import SessionDep
 from models import Users
 from schemas import UserCreate, UserResponse, UserUpdate
 from utils import hash_password
 from sqlmodel import select
+from oauth2 import verify_token
 
 router = APIRouter(
     prefix="/user",
@@ -24,19 +25,19 @@ def create_user(user: UserCreate, session: SessionDep):
     return new_user
 
 @router.get("/", response_model=list[UserResponse])
-def getall_users(session: SessionDep):
+def getall_users(session: SessionDep, logged_user = Depends(verify_token)):
     users = session.exec(select(Users)).all()
     return users
 
 @router.get("/{user_id}", response_model=UserResponse)
-def get_user(user_id: int, session: SessionDep):
+def get_user(user_id: int, session: SessionDep, logged_user = Depends(verify_token)):
     user = session.get(Users, user_id)
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
     return user 
 
 @router.patch("/{user_id}", response_model=UserResponse, status_code=status.HTTP_202_ACCEPTED)
-def update_user(user_id: int, user: UserUpdate, session: SessionDep):
+def update_user(user_id: int, user: UserUpdate, session: SessionDep, logged_user = Depends(verify_token)):
     user_db = session.get(Users, user_id)
     if not user_db:
         raise HTTPException(status_code=404, detail="User not found")
@@ -48,7 +49,7 @@ def update_user(user_id: int, user: UserUpdate, session: SessionDep):
     return user_db
 
 @router.delete("/{user_id}", status_code=status.HTTP_204_NO_CONTENT)
-def delete_user(user_id: int, session: SessionDep):
+def delete_user(user_id: int, session: SessionDep, logged_user = Depends(verify_token)):
     user = session.get(Users, user_id)
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
