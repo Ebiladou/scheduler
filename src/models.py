@@ -22,7 +22,7 @@ class Event(SQLModel, table=True):
     title: str
     description: Optional[str] = None
     event_date: str
-    location: Optional[str] = None
+    location: str
     image_url: Optional[str] = None
     category_id: Optional[int] = Field(foreign_key="eventcategory.id")
 

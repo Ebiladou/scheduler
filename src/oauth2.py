@@ -39,17 +39,18 @@ async def verify_token(token: Annotated[str, Depends(oauth2_scheme)], session: S
         detail="Could not validate credentials",
         headers={"WWW-Authenticate": "Bearer"},
     )
-    try:
-        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-        email: str = payload.get("sub")
-        if email is None:
-            raise credentials_exception
-        token_data = TokenData(email=email)
-    except InvalidTokenError:
-        raise credentials_exception
-    
-    statement = select(Users).where(Users.email == token_data.email)
+    payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+    user_id: str = payload.get("sub")  
+    email: str = payload.get("email")  
+
+    if not user_id or not email:
+          raise credentials_exception
+
+    token_data = TokenData(id=int(user_id), email=email)  
+
+    statement = select(Users).where(Users.id == token_data.id)  
     user = session.exec(statement).first()
+
     
     if user is None:
         raise credentials_exception

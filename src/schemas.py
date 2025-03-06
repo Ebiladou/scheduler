@@ -28,7 +28,6 @@ class EventBase(BaseModel):
     image_url: str | None = None
 
 class EventCreate(EventBase):
-    user_id: int | None = None
     category_id: int | None = None
 
 class EventUpdate(EventBase):
@@ -37,6 +36,25 @@ class EventUpdate(EventBase):
     location: str | None = None
 
 class EventResponse(EventBase):
+    user_id: int
+    id: int
+
+    class Config:
+        from_attributes = True
+
+class ContactBase(BaseModel):
+    name: str
+    email: Optional[EmailStr] = None
+
+class ContactCreate(ContactBase):
+  phone: Optional[str] = None
+
+class ContactUpdate(BaseModel):
+    name: Optional[str] = None
+    phone: Optional[str] = None
+
+class ContactResponse(ContactBase):
+    id: int
     user_id: int
 
     class Config:
@@ -52,3 +70,4 @@ class Token(BaseModel):
 
 class TokenData(BaseModel):
     email: str | None = None
+    id: int | None = None

@@ -12,17 +12,15 @@ router = APIRouter(
 
 @router.post("/", response_model=EventResponse, status_code=status.HTTP_201_CREATED)
 def create_event(event:EventCreate, session:SessionDep, logged_user = Depends(verify_token)):
-    if event.user_id != logged_user.id:
-        raise HTTPException(status_code=403, detail="Not authorized to create an event for this user")
-    new_event = Event(**event.model_dump())
+    new_event = Event(**event.model_dump(), user_id=logged_user.id)
     session.add(new_event)
     session.commit()
     session.refresh(new_event)
     return new_event
 
-@router.get("/", response_model=EventResponse)
+@router.get("/", response_model=list[EventResponse])
 def get_event(session:SessionDep, logged_user = Depends(verify_token)):
-    events = session.exec(select(Event)).all
+    events = session.exec(select(Event)).all()
     return events
 
 @router.get("/{event_id}", response_model=EventResponse)
@@ -49,6 +47,6 @@ def update_event (event_id:int, event:EventUpdate, session:SessionDep, logged_us
     event_data = event.model_dump(exclude_unset=True)
     updated_event.sqlmodel_update(event_data)
     session.add(updated_event)
-    session.commit
+    session.commit()
     session.refresh(updated_event)
     return updated_event
