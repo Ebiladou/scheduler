@@ -42,7 +42,7 @@ class EventResponse(EventBase):
     class Config:
         from_attributes = True
 
-class Login_user (BaseModel):
+class LoginUser (BaseModel):
     email : str
     password: str
 
@@ -51,4 +51,4 @@ class Token(BaseModel):
     token_type: str
 
 class TokenData(BaseModel):
-    username: str | None = None
+    email: str | None = None

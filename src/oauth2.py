@@ -10,6 +10,8 @@ from schemas import TokenData
 from models import Users
 from sqlmodel import select
 from database import SessionDep
+from typing import Optional
+
 
 
 load_dotenv()
@@ -39,14 +41,14 @@ async def verify_token(token: Annotated[str, Depends(oauth2_scheme)], session: S
     )
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-        username: str = payload.get("sub")
-        if username is None:
+        email: str = payload.get("sub")
+        if email is None:
             raise credentials_exception
-        token_data = TokenData(username=username)
+        token_data = TokenData(email=email)
     except InvalidTokenError:
         raise credentials_exception
     
-    statement = select(Users).where(Users.id == token_data.username)
+    statement = select(Users).where(Users.email == token_data.email)
     user = session.exec(statement).first()
     
     if user is None:

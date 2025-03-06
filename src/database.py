@@ -14,6 +14,7 @@ import models
 
 def init_db():
     SQLModel.metadata.create_all(engine)
+    return get_session
 
 def get_session():
     with Session(engine) as session:

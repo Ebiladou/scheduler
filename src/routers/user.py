@@ -2,6 +2,7 @@ from fastapi import status, HTTPException, APIRouter, Depends
 from database import SessionDep
 from models import Users
 from schemas import UserCreate, UserResponse, UserUpdate
+from typing import Optional
 from utils import hash_password
 from sqlmodel import select
 from oauth2 import verify_token
@@ -31,7 +32,8 @@ def getall_users(session: SessionDep, logged_user = Depends(verify_token)):
 
 @router.get("/{user_id}", response_model=UserResponse)
 def get_user(user_id: int, session: SessionDep, logged_user = Depends(verify_token)):
-    user = session.get(Users, user_id)
+    statement = select(Users).where(Users.id == user_id)
+    user = session.exec(statement).first()
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
     return user 

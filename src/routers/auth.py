@@ -9,10 +9,9 @@ from typing import Annotated
 router = APIRouter(tags=['Authentication'])
 
 @router.post('/login', response_model=schemas.Token)
-def login(
-    user_credentials: Annotated[OAuth2PasswordRequestForm, Depends()],
-    session: Annotated[Session, Depends(SessionDep)]
-):
+def login( user_credentials: Annotated[OAuth2PasswordRequestForm, Depends()],  
+    session: SessionDep):
+
     statement = select(Users).where(Users.email == user_credentials.username)
     user = session.exec(statement).first()
 
