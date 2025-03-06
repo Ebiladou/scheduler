@@ -39,7 +39,7 @@ def delete_event(event_id:int, session:SessionDep, logged_user=Depends(verify_to
         raise HTTPException(status_code=404, detail="event not found")
     session.delete(event)
     session.commit()
-    return ("ok:" True)
+    return {"ok": True}
 
 @router.patch("/{event_id}", response_model=EventResponse, status_code=status.HTTP_202_ACCEPTED)
 def update_event (event_id:int, event:EventUpdate, session:SessionDep, logged_user = Depends(verify_token)):
