@@ -18,7 +18,7 @@ class Users(SQLModel, table=True):
 
 class Event(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
-    user_id: int = Field(foreign_key="user.id")
+    user_id: int = Field(foreign_key="users.id")
     title: str
     description: Optional[str] = None
     event_date: str
@@ -31,7 +31,7 @@ class Event(SQLModel, table=True):
 
 class Contact(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
-    user_id: int = Field(foreign_key="user.id")
+    user_id: int = Field(foreign_key="users.id")
     name: str
     email: Optional[str] = None
     phone: Optional[str] = None
@@ -41,7 +41,7 @@ class Contact(SQLModel, table=True):
 
 class EventCategory(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
-    user_id: Optional[int] = Field(foreign_key="user.id")
+    user_id: Optional[int] = Field(foreign_key="users.id")
     name: str = Field(sa_column=Column(String, unique=True, nullable=False))
 
     def __repr__(self):
@@ -49,7 +49,7 @@ class EventCategory(SQLModel, table=True):
 
 class Notification(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
-    user_id: int = Field(foreign_key="user.id")
+    user_id: int = Field(foreign_key="users.id")
     event_id: int = Field(foreign_key="event.id")
     status: str
     sent_at: Optional[str] = None
