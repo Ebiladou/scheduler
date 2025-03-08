@@ -1,9 +1,8 @@
 from typing import Optional
-from sqlmodel import Field, SQLModel
+from sqlmodel import Field, SQLModel, Relationship
 from sqlalchemy import Column, String
 from datetime import datetime
-from typing import Optional
-
+from typing import Optional, List
 
 class Users(SQLModel, table=True):
     id: int = Field(default=None, primary_key=True)
@@ -15,19 +14,6 @@ class Users(SQLModel, table=True):
 
     def __repr__(self):
         return f"<User {self.name}>"
-
-class Event(SQLModel, table=True):
-    id: Optional[int] = Field(default=None, primary_key=True)
-    user_id: int = Field(foreign_key="users.id")
-    title: str
-    description: Optional[str] = None
-    event_date: str
-    location: str
-    image_url: Optional[str] = None
-    category_id: Optional[int] = Field(foreign_key="eventcategory.id")
-
-    def __repr__(self):
-        return f"<Event {self.title}>"
 
 class Contact(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
@@ -43,9 +29,26 @@ class EventCategory(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
     user_id: Optional[int] = Field(foreign_key="users.id")
     name: str = Field(sa_column=Column(String, unique=True, nullable=False))
+    events: List["Event"] = Relationship(back_populates="category")
 
     def __repr__(self):
         return f"<EventCategory {self.name}>"
+    
+
+class Event(SQLModel, table=True):
+    id: Optional[int] = Field(default=None, primary_key=True)
+    user_id: int = Field(foreign_key="users.id")
+    title: str
+    description: Optional[str] = None
+    event_date: str
+    location: str
+    image_url: Optional[str] = None
+    category_id: Optional[int] = Field(foreign_key="eventcategory.id")
+    category: Optional[EventCategory] = Relationship(back_populates="events")
+
+    def __repr__(self):
+        return f"<Event {self.title}>"
+
 
 class Notification(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)

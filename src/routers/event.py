@@ -1,6 +1,6 @@
 from fastapi import status, HTTPException, APIRouter, Depends
 from database import SessionDep
-from models import Event
+from models import Event, EventCategory
 from schemas import EventCreate, EventResponse, EventUpdate
 from sqlmodel import select
 from oauth2 import verify_token
@@ -11,8 +11,14 @@ router = APIRouter(
 )
 
 @router.post("/", response_model=EventResponse, status_code=status.HTTP_201_CREATED)
-def create_event(event:EventCreate, session:SessionDep, logged_user = Depends(verify_token)):
-    new_event = Event(**event.model_dump(), user_id=logged_user.id)
+def create_event(event: EventCreate, session: SessionDep, logged_user=Depends(verify_token)):
+    category = session.exec(select(EventCategory).where(EventCategory.id == event.category_id)).first()
+    if not category and event.category_name:  
+        session.add(category)
+        session.commit()
+        session.refresh(category)
+
+    new_event = Event(**event.model_dump(exclude={"category_name"}), user_id=logged_user.id, category_id=category.id if category else None)
     session.add(new_event)
     session.commit()
     session.refresh(new_event)

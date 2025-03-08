@@ -4,12 +4,11 @@ from typing import Optional
 class UserBase(BaseModel):
     name: str
     email: EmailStr
-    phone: str
+    phone: str | None = None
 
 class UserUpdate(UserBase):
     name: str | None = None
     email: EmailStr | None = None
-    phone: str | None = None
 
 class UserCreate(UserBase):
     password: str  
@@ -26,6 +25,7 @@ class EventBase(BaseModel):
     event_date: str
     location: str
     image_url: str | None = None
+    category_name: str | None = None
 
 class EventCreate(EventBase):
     category_id: int | None = None
@@ -59,6 +59,17 @@ class ContactResponse(ContactBase):
 
     class Config:
         from_attributes = True
+
+class EventcategoryBase(BaseModel):
+    name: str
+
+class EventcategoryUpdate(EventcategoryBase):
+    name: str | None = None
+    id: int | None = None
+    user_id: int | None = None
+
+    class config:
+        form_attribites = True
 
 class LoginUser (BaseModel):
     email : str
