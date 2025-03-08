@@ -43,6 +43,12 @@ def update_user(user_id: int, user: UserUpdate, session: SessionDep, logged_user
     user_db = session.get(Users, user_id)
     if not user_db:
         raise HTTPException(status_code=404, detail="User not found")
+    
+    statement = select (Users).where(((Users.email==user.email) | (Users.phone==str(user.phone))) & (Users.id != user_id))
+    existing_user = session.exec(statement).first()
+    if existing_user:
+        raise HTTPException(status_code=403, detail="email or phone already used")
+    
     user_data = user.model_dump(exclude_unset=True)
     user_db.sqlmodel_update(user_data)
     session.add(user_db)

@@ -4,12 +4,12 @@ from typing import Optional
 class UserBase(BaseModel):
     name: str
     email: EmailStr
-    phone: int
+    phone: str
 
 class UserUpdate(UserBase):
     name: str | None = None
     email: EmailStr | None = None
-    phone: int | None = None
+    phone: str | None = None
 
 class UserCreate(UserBase):
     password: str  
@@ -49,7 +49,7 @@ class ContactBase(BaseModel):
 class ContactCreate(ContactBase):
   phone: Optional[str] = None
 
-class ContactUpdate(BaseModel):
+class ContactUpdate(ContactBase):
     name: Optional[str] = None
     phone: Optional[str] = None
 
