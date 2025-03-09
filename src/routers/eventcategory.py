@@ -45,3 +45,17 @@ def delete_category (id:int, session:SessionDep, logged_user = Depends(verify_to
     session.delete(category)
     session.commit()
     return {"ok": True}
+
+@router.patch("/{id}", response_model=EventcategoryUpdate, status_code=status.HTTP_202_ACCEPTED)
+def update_category (id:int, category:EventcategoryUpdate, session: SessionDep, logged_user = Depends(verify_token)):
+    updated_cat = session.get(EventCategory, id)
+    if not updated_cat:
+        raise HTTPException(status_code=404, detail="category not found")
+    
+    category_data = category.model_dump(exclude_unset=True)
+    updated_cat.sqlmodel_update(category_data)
+    session.add(updated_cat)
+    session.commit()
+    session.refresh(updated_cat)
+    return updated_cat
+
