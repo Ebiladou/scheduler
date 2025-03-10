@@ -1,6 +1,6 @@
 from typing import Optional
 from sqlmodel import Field, SQLModel, Relationship
-from sqlalchemy import Column, String
+from sqlalchemy import Column, String, DateTime
 from datetime import datetime
 from typing import Optional, List
 
@@ -40,7 +40,7 @@ class Event(SQLModel, table=True):
     user_id: int = Field(foreign_key="users.id")
     title: str
     description: Optional[str] = None
-    event_date: str
+    event_date: datetime = Field(sa_column=Column(DateTime, nullable=False))
     location: str
     image_url: Optional[str] = None
     category_id: Optional[int] = Field(foreign_key="eventcategory.id")
@@ -49,13 +49,13 @@ class Event(SQLModel, table=True):
     def __repr__(self):
         return f"<Event {self.title}>"
 
-
+    
 class Notification(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
     user_id: int = Field(foreign_key="users.id")
     event_id: int = Field(foreign_key="event.id")
-    status: str
-    sent_at: Optional[str] = None
+    status: str = Field(default="pending") 
+    sent_at: Optional[datetime] = None
 
     def __repr__(self):
-        return f"<Notification {self.sent_at}>"
+        return f"<Notification {self.status} at {self.sent_at}>"
