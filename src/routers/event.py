@@ -4,7 +4,7 @@ from models import Event, EventCategory
 from schemas import EventCreate, EventResponse, EventUpdate
 from sqlmodel import select
 from oauth2 import verify_token
-from notification import schedule_notification
+from routers.notification import schedule_notification
 
 router = APIRouter(
     prefix="/event",
