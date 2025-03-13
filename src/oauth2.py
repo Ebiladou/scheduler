@@ -1,18 +1,15 @@
 import os
 import jwt
+from jwt import ExpiredSignatureError, InvalidTokenError
 from typing import Annotated
 from datetime import datetime, timedelta, timezone
 from fastapi import Depends, status, HTTPException
 from fastapi.security import OAuth2PasswordBearer
 from dotenv import load_dotenv
-from jwt.exceptions import InvalidTokenError
 from schemas import TokenData
 from models import Users
 from sqlmodel import select
 from database import SessionDep
-from typing import Optional
-
-
 
 load_dotenv()
 
@@ -32,26 +29,41 @@ def create_access_token(data: dict, expires_delta: timedelta | None = None):
     encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
     return encoded_jwt
 
-
 async def verify_token(token: Annotated[str, Depends(oauth2_scheme)], session: SessionDep):
-    credentials_exception = HTTPException(
+    try:
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        user_id: str = payload.get("sub")  
+        email: str = payload.get("email")  
+
+        if not user_id or not email:
+            raise HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail="Could not validate credentials",
         headers={"WWW-Authenticate": "Bearer"},
     )
-    payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-    user_id: str = payload.get("sub")  
-    email: str = payload.get("email")  
 
-    if not user_id or not email:
-          raise credentials_exception
+        token_data = TokenData(id=int(user_id), email=email)  
+        statement = select(Users).where(Users.id == token_data.id)  
+        user = session.exec(statement).first()
 
-    token_data = TokenData(id=int(user_id), email=email)  
+        if user is None:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="User not found",
+                headers={"WWW-Authenticate": "Bearer"},
+            )
+        return user
 
-    statement = select(Users).where(Users.id == token_data.id)  
-    user = session.exec(statement).first()
+    except ExpiredSignatureError:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Token has expired",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
 
-    
-    if user is None:
-        raise credentials_exception
-    return user 
+    except InvalidTokenError:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid token",
+            headers={"WWW-Authenticate": "Bearer"},
+        )

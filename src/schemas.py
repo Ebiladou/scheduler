@@ -1,5 +1,6 @@
 from pydantic import BaseModel, EmailStr
 from typing import Optional
+from datetime import datetime
 
 class UserBase(BaseModel):
     name: str
@@ -22,7 +23,7 @@ class UserResponse(UserBase):
 class EventBase(BaseModel):
     title: str
     description: str | None = None
-    event_date: str
+    event_date: datetime
     location: str
     image_url: str | None = None
     category_name: str | None = None

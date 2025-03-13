@@ -14,16 +14,19 @@ router = APIRouter(
 @router.post("/", response_model=EventResponse, status_code=status.HTTP_201_CREATED)
 def create_event(event: EventCreate, session: SessionDep, logged_user=Depends(verify_token)):
     category = session.exec(select(EventCategory).where(EventCategory.id == event.category_id)).first()
-    if not category and event.category_name:  
+    if not category and event.category_name:
+        category = session.exec(select(EventCategory).where(EventCategory.name == event.category_name)).first()
+    if not category: 
+        category = EventCategory(name=event.category_name) 
         session.add(category)
         session.commit()
         session.refresh(category)
-
-    new_event = Event(**event.model_dump(exclude={"category_name"}), user_id=logged_user.id, category_id=category.id if category else None)
+    new_event_data = event.model_dump(exclude={"category_name", "category_id"})
+    new_event = Event(**new_event_data, user_id=logged_user.id, category_id=category.id if category else None)
     session.add(new_event)
     session.commit()
     session.refresh(new_event)
-    schedule_notification(session, event)
+    schedule_notification(session, new_event)
     return new_event
 
 @router.get("/", response_model=list[EventResponse])
